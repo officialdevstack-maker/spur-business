@@ -1,5 +1,8 @@
 import "server-only";
 
+import { cache } from "react";
+import { notFound } from "next/navigation";
+import { z } from "zod";
 import type { QueryResultRow } from "pg";
 import { MAX_OWNED_WORKSPACES } from "@/lib/constants";
 import { getPool } from "@/lib/db";
@@ -58,6 +61,22 @@ export async function listUserWorkspaces(
   }));
 }
 
+export async function getLandingPath(userId: string): Promise<string> {
+  const { rows } = await getPool().query<{ id: string }>(
+    `SELECT w.id
+       FROM workspace_members wm
+       JOIN workspaces w ON w.id = wm.workspace_id
+      WHERE wm.user_id = $1
+      ORDER BY w.created_at DESC, w.id
+      LIMIT 2`,
+    [userId],
+  );
+
+  if (rows.length === 0) return "/workspaces/new";
+  if (rows.length === 1) return `/w/${rows[0].id}`;
+  return "/workspaces";
+}
+
 export async function countOwnedWorkspaces(userId: string): Promise<number> {
   const { rows } = await getPool().query<{ count: number }>(
     `SELECT count(*)::int AS count
@@ -69,7 +88,7 @@ export async function countOwnedWorkspaces(userId: string): Promise<number> {
   return rows[0]?.count ?? 0;
 }
 
-export async function getUserWorkspace(
+export async function getWorkspaceForUser(
   userId: string,
   workspaceId: string,
 ): Promise<{ workspace: Workspace; role: WorkspaceRole } | null> {
@@ -85,6 +104,26 @@ export async function getUserWorkspace(
 
   const { role, ...workspace } = row;
   return { workspace: toWorkspace(workspace), role };
+}
+
+const uuid = z.string().uuid();
+
+export const requireWorkspace = cache(async (workspaceId: string, userId: string) => {
+  if (!uuid.safeParse(workspaceId).success) notFound();
+
+  const row = await getWorkspaceForUser(userId, workspaceId);
+  if (!row) notFound();
+
+  return row;
+});
+
+export function schoolSiteUrl(slug: string | null): string {
+  if (!slug) throw new Error("School workspace is missing its slug.");
+
+  const baseUrl = process.env.SCHOOLS_BASE_URL;
+  if (!baseUrl) throw new Error("SCHOOLS_BASE_URL must be configured.");
+
+  return `${baseUrl.replace(/\/+$/, "")}/${encodeURIComponent(slug)}`;
 }
 
 async function findSchoolSlug(

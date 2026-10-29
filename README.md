@@ -29,13 +29,14 @@ Accounts URL for local development or staging.
 ## Sign-in behavior
 
 - The home page and `/signin` are public.
-- `/dashboard`, `/onboarding`, `/workspaces`, `/w`, and `/api/workspaces` routes
-  are guarded by the SDK's Next.js 16 `proxy` integration.
+- `/workspaces`, `/w`, and `/api/workspaces` routes are guarded by the SDK's
+  Next.js 16 `proxy` integration.
 - Signed-out users are redirected to Spurs Accounts and returned to the
   requested app URL after signing in.
-- The signed-in home page reads the shared session server-side and shows the
-  user's name and the shared Spurs account menu. Sign-out clears the shared
-  Spurs session.
+- The signed-in home page sends users with no workspaces to `/workspaces/new`,
+  users with one workspace to `/w/<id>`, and users with multiple workspaces to
+  `/workspaces`. Sign-in returns to `/` so the same routing applies after login.
+- The public home page explains the VTU and school offerings and links to sign-in.
 - Workspace API and page actions read and authorize the shared session on the
   server. Workspace data is stored in this app's own database; the owner limit
   is serialized and enforced in a database transaction.

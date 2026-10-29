@@ -6,8 +6,6 @@ export const proxy = createSpursProxy({
 
 export const config = {
   matcher: [
-    "/dashboard/:path*",
-    "/onboarding/:path*",
     "/workspaces/:path*",
     "/w/:path*",
     "/api/workspaces/:path*",

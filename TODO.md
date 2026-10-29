@@ -11,19 +11,21 @@ Business accounts for Spurs. Users sign in with their Spurs identity, then creat
 - [x] Limit of 5 owned workspaces, serialized and enforced in the database transaction
 - [x] Basic member-only workspace overview and Pay identity status
 - [x] Unique school workspace slugs
+- [x] Route signed-in users from the home page based on their workspaces
 
 ## Verify first
 - [ ] Configure `SPURS_SESSION_SECRET` and `APP_URL` from `.env.example`
+- [ ] Configure `SCHOOLS_BASE_URL` for the separate schools app
 - [ ] Confirm Accounts issues the shared cookie for the local hostname and production Spurs app domain
 - [ ] Run `db/schema.sql` against the Neon/PostgreSQL database
 - [ ] Set `DATABASE_URL` to the Business app's dedicated PostgreSQL/Neon database
 - [ ] End-to-end test: sign in, create VTU and school workspaces, reload, switch, sign out
 
 ## Workspace dashboard follow-up
-- [ ] Add VTU and school workspace-specific navigation and overview pages
-- [ ] Show the school URL derived from `SCHOOLS_BASE_URL/<slug>`
+- [x] Add VTU and school workspace-specific navigation and overview pages
+- [x] Show the school URL derived from `SCHOOLS_BASE_URL/<slug>`
 - [ ] Keep reserved school slugs in sync with routes on the separate schools app
-- [ ] Add the settings page for workspace name and Pay identity status
+- [x] Add the read-only settings page for workspace name and Pay identity status
 
 ## Pay identity (created by admin)
 - [ ] Internal API in this app for admin to set/clear `pay_identity_id` (service-to-service auth, not user sessions)
@@ -40,7 +42,7 @@ Business accounts for Spurs. Users sign in with their Spurs identity, then creat
 - [ ] Transfer ownership
 
 ## Workspace settings
-- [ ] Edit business name and profile (logo, phone, address) — slug stays fixed
+- [ ] Edit business name and profile (logo, phone, address) — slug stays fixed (settings page is read-only for now)
 - [ ] Business verification (decide requirements with Accounts/admin)
 - [ ] Delete or archive workspace
 
@@ -64,7 +66,6 @@ Business accounts for Spurs. Users sign in with their Spurs identity, then creat
 - [ ] Payment reports and reconciliation
 
 ## Platform and quality
-- [ ] Route protection for all `/dashboard` and `/onboarding` paths
 - [ ] Audit log for sensitive workspace actions
 - [ ] Rate limiting on workspace creation
 - [ ] Tests for slug generation, reserved slugs, membership checks, and server actions

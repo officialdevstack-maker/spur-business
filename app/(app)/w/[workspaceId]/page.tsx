@@ -1,34 +1,46 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
-import { getUserWorkspace } from "@/lib/workspaces/service";
+import { requireWorkspace, schoolSiteUrl } from "@/lib/workspaces/service";
 
-export default async function WorkspacePage({
+export default async function WorkspaceOverviewPage({
   params,
-}: PageProps<"/w/[workspaceId]">) {
-  const [{ workspaceId }, user] = await Promise.all([params, requireUser()]);
-  const result = await getUserWorkspace(user.sub, workspaceId);
-  if (!result) notFound();
-
-  const { workspace, role } = result;
+}: {
+  params: Promise<{ workspaceId: string }>;
+}) {
+  const { workspaceId } = await params;
+  const user = await requireUser();
+  const { workspace, role } = await requireWorkspace(workspaceId, user.sub);
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-10 sm:px-10">
-      <Link
-        href="/workspaces"
-        className="text-sm font-medium text-[#4C6267] underline underline-offset-4"
-      >
-        All workspaces
-      </Link>
-      <div className="mt-6 rounded-2xl border border-[#12343B]/10 bg-white p-6 shadow-sm sm:p-8">
-        <p className="text-sm font-semibold uppercase tracking-wide text-[#6A7E82]">
-          {workspace.type === "vtu" ? "VTU business" : "School"} · {role}
-        </p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight">{workspace.name}</h1>
-        <p className="mt-4 text-[#4C6267]">
-          Pay account: {workspace.payIdentityId ? "Active" : "Pending"}
+    <section className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">{workspace.name}</h1>
+        <p className="mt-1 text-sm capitalize text-[#6A7E82]">
+          {workspace.type === "vtu" ? "VTU business" : "School"} · You are {role}
         </p>
       </div>
-    </main>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-2xl border border-[#12343B]/10 bg-white p-5 shadow-sm">
+          <p className="text-sm font-medium text-[#6A7E82]">Pay account</p>
+          <p className="mt-1 text-xl font-semibold">
+            {workspace.payIdentityId ? "Active" : "Pending"}
+          </p>
+          {!workspace.payIdentityId && (
+            <p className="mt-2 text-sm text-[#4C6267]">
+              Spurs will set this up for your business. You'll see it here when it's ready.
+            </p>
+          )}
+        </div>
+
+        {workspace.type === "school" && (
+          <div className="rounded-2xl border border-[#12343B]/10 bg-white p-5 shadow-sm">
+            <p className="text-sm font-medium text-[#6A7E82]">School site</p>
+            <p className="mt-1 break-all text-sm font-semibold">
+              {schoolSiteUrl(workspace.slug)}
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
