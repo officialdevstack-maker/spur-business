@@ -27,7 +27,7 @@ export default async function WorkspaceOverviewPage({
           </p>
           {!workspace.payIdentityId && (
             <p className="mt-2 text-sm text-[#4C6267]">
-              Spurs will set this up for your business. You'll see it here when it's ready.
+              Spurs will set this up for your business. You&apos;ll see it here when it&apos;s ready.
             </p>
           )}
         </div>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/session";
+import { MAX_OWNED_WORKSPACES } from "@/lib/constants";
 import {
   countOwnedWorkspaces,
   createWorkspace,
@@ -22,7 +23,7 @@ export async function GET() {
     return NextResponse.json({
       workspaces: rows.map(({ workspace, role }) => ({ ...workspace, role })),
       owned,
-      limit: 5,
+      limit: MAX_OWNED_WORKSPACES,
     });
   } catch (error) {
     console.error("Could not list business workspaces.", error);

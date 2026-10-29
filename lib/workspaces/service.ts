@@ -3,7 +3,7 @@ import "server-only";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import { z } from "zod";
-import type { QueryResultRow } from "pg";
+import type { PoolClient, QueryResultRow } from "pg";
 import { MAX_OWNED_WORKSPACES } from "@/lib/constants";
 import { getPool } from "@/lib/db";
 import type { Workspace, WorkspaceRole } from "@/lib/db/schema";
@@ -89,8 +89,8 @@ export async function countOwnedWorkspaces(userId: string): Promise<number> {
 }
 
 export async function getWorkspaceForUser(
-  userId: string,
   workspaceId: string,
+  userId: string,
 ): Promise<{ workspace: Workspace; role: WorkspaceRole } | null> {
   const { rows } = await getPool().query<WorkspaceMembershipRow>(
     `SELECT ${WORKSPACE_COLUMNS}, wm.role
@@ -111,7 +111,7 @@ const uuid = z.string().uuid();
 export const requireWorkspace = cache(async (workspaceId: string, userId: string) => {
   if (!uuid.safeParse(workspaceId).success) notFound();
 
-  const row = await getWorkspaceForUser(userId, workspaceId);
+  const row = await getWorkspaceForUser(workspaceId, userId);
   if (!row) notFound();
 
   return row;
@@ -127,18 +127,18 @@ export function schoolSiteUrl(slug: string | null): string {
 }
 
 async function findSchoolSlug(
-  client: Awaited<ReturnType<ReturnType<typeof getPool>["connect"]>>,
+  client: PoolClient,
   name: string,
 ): Promise<string | null> {
   const base = schoolSlugBase(name);
 
   for (let suffix = 0; suffix < 100; suffix += 1) {
     const candidate = schoolSlugCandidate(base, suffix);
-    const { rowCount } = await client.query(
+    const { rows } = await client.query(
       "SELECT 1 FROM workspaces WHERE slug = $1",
       [candidate],
     );
-    if (rowCount === 0) return candidate;
+    if (rows.length === 0) return candidate;
   }
 
   return null;

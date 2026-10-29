@@ -22,7 +22,7 @@ export default async function SchoolPage({
           {schoolSiteUrl(workspace.slug)}
         </p>
         <p className="mt-3 text-sm text-[#4C6267]">
-          This site isn't live yet. We'll enable it once the schools app is ready.
+          This site isn&apos;t live yet. We&apos;ll enable it once the schools app is ready.
         </p>
       </div>
     </section>
