@@ -1,0 +1,76 @@
+<!-- business/TODO.md -->
+# Spurs Business — TODO
+
+Business accounts for Spurs. Users sign in with their Spurs identity, then create a business workspace (currently VTU or school). Schools get a site at `schools.yourdomain.com/<slug>`.
+
+## Done (milestone 1, written but not yet run)
+- [x] First-party Spurs sign-in using the shared Accounts session (SDK)
+- [x] Business-owned database schema (`workspaces`, `workspace_members`)
+- [x] Create workspace (name + type), creator becomes owner
+- [x] Workspace picker and per-workspace dashboard shell (member-only access)
+- [x] School site URL derived as `SCHOOLS_BASE_URL/<slug>` and shown on the school dashboard
+- [x] Reserved slugs blocked so they can't clash with routes on the schools site
+- [x] `AGENTS.md` and `TODO.md` for the app
+- [x] Limit of 5 owned workspaces per user, enforced in the database insert; UI shows count and limit message
+- [x] `pay_identity_id` column on workspaces; dashboard shows Pay account Pending/Active
+- [x] "Switch" link opens the full workspace list even when the user has only one workspace
+
+## Verify first
+- [ ] Configure `SPURS_SESSION_SECRET` and `APP_URL` from `.env.example`
+- [ ] Confirm Accounts issues the shared cookie for the local hostname and production Spurs app domain
+- [ ] Run `db/schema.sql` against the Neon/PostgreSQL database
+- [ ] Confirm the app's active Next.js routes and aliases match the implemented workspace pages
+- [ ] Set `SCHOOLS_BASE_URL` per environment once the schools domain exists
+- [ ] End-to-end test: sign in, create VTU and school workspaces, reload, switch, sign out
+
+## Pay identity (created by admin)
+- [ ] Internal API in this app for admin to set/clear `pay_identity_id` (service-to-service auth, not user sessions)
+- [ ] Admin screen in `admin/` to list businesses and create their Pay identity (calls Pay, then the internal API above)
+- [ ] Decide what a business can't do until its Pay identity exists (e.g. wallet, funding, bulk purchases)
+- [ ] Notify the business when its Pay account becomes active
+- [ ] Decide whether an admin can revoke or replace a Pay identity
+
+## Next: team and roles
+- [ ] Invite members by email or Spurs id
+- [ ] Accept/decline invites
+- [ ] Role management (owner, admin, member) and permission checks
+- [ ] Remove member / leave workspace
+- [ ] Transfer ownership
+
+## Workspace settings
+- [ ] Edit business name and profile (logo, phone, address) — slug stays fixed
+- [ ] Business verification (decide requirements with Accounts/admin)
+- [ ] Delete or archive workspace
+
+## VTU businesses
+- [ ] Business wallet view (read via Wallet internal API)
+- [ ] Fund wallet (via Pay)
+- [ ] Bulk airtime/data purchase
+- [ ] Reseller pricing and customer management
+- [ ] Transaction history and export
+
+## Schools
+- [x] Decided: the school management site is a separate app
+- [ ] Create the separate schools app at `schools.yourdomain.com/[slug]`, resolving the school from the slug
+- [ ] Let the schools site verify a signed-in user is a member of that workspace (shared sign-in via Spurs Accounts plus a membership lookup against this app's API or database)
+- [ ] Only show the school site link/open it for school workspaces whose Pay identity rules allow it (decide)
+- [ ] Decide slug rules: slugs are permanent (renaming would break school URLs) unless redirects are added
+- [ ] Keep `RESERVED_SLUGS` in sync with top-level routes on the schools site
+- [ ] Student and class records
+- [ ] Fee schedules and invoices
+- [ ] Parent/student fee payments (via Pay)
+- [ ] Payment reports and reconciliation
+
+## Platform and quality
+- [ ] Route protection for all `/dashboard` and `/onboarding` paths
+- [ ] Audit log for sensitive workspace actions
+- [ ] Rate limiting on workspace creation
+- [ ] Tests for slug generation, reserved slugs, membership checks, and server actions
+- [ ] Error and empty states, loading UI
+- [ ] Deployment config and production env checklist
+
+## Open questions
+- Does the 5-workspace limit count only owned workspaces (current behavior) or also ones the user is a member of?
+- Should admins be able to raise the limit for a specific user?
+- Which admin/ screens are needed to review or support business accounts?
+- How should deleting a workspace affect its Pay identity and school site?
