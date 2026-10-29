@@ -3,25 +3,27 @@
 
 Business accounts for Spurs. Users sign in with their Spurs identity, then create a business workspace (currently VTU or school). Schools get a site at `schools.yourdomain.com/<slug>`.
 
-## Done (milestone 1, written but not yet run)
+## Implemented
 - [x] First-party Spurs sign-in using the shared Accounts session (SDK)
-- [x] Business-owned database schema (`workspaces`, `workspace_members`)
-- [x] Create workspace (name + type), creator becomes owner
-- [x] Workspace picker and per-workspace dashboard shell (member-only access)
-- [x] School site URL derived as `SCHOOLS_BASE_URL/<slug>` and shown on the school dashboard
-- [x] Reserved slugs blocked so they can't clash with routes on the schools site
-- [x] `AGENTS.md` and `TODO.md` for the app
-- [x] Limit of 5 owned workspaces per user, enforced in the database insert; UI shows count and limit message
-- [x] `pay_identity_id` column on workspaces; dashboard shows Pay account Pending/Active
-- [x] "Switch" link opens the full workspace list even when the user has only one workspace
+- [x] Workspace API, picker, and create form
+- [x] Business-owned schema for `workspaces` and `workspace_members`
+- [x] Creator is added as workspace owner
+- [x] Limit of 5 owned workspaces, serialized and enforced in the database transaction
+- [x] Basic member-only workspace overview and Pay identity status
+- [x] Unique school workspace slugs
 
 ## Verify first
 - [ ] Configure `SPURS_SESSION_SECRET` and `APP_URL` from `.env.example`
 - [ ] Confirm Accounts issues the shared cookie for the local hostname and production Spurs app domain
 - [ ] Run `db/schema.sql` against the Neon/PostgreSQL database
-- [ ] Confirm the app's active Next.js routes and aliases match the implemented workspace pages
-- [ ] Set `SCHOOLS_BASE_URL` per environment once the schools domain exists
+- [ ] Set `DATABASE_URL` to the Business app's dedicated PostgreSQL/Neon database
 - [ ] End-to-end test: sign in, create VTU and school workspaces, reload, switch, sign out
+
+## Workspace dashboard follow-up
+- [ ] Add VTU and school workspace-specific navigation and overview pages
+- [ ] Show the school URL derived from `SCHOOLS_BASE_URL/<slug>`
+- [ ] Keep reserved school slugs in sync with routes on the separate schools app
+- [ ] Add the settings page for workspace name and Pay identity status
 
 ## Pay identity (created by admin)
 - [ ] Internal API in this app for admin to set/clear `pay_identity_id` (service-to-service auth, not user sessions)
