@@ -3,7 +3,7 @@ import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { SpursSignInButton } from "@spurs-cloud/accounts/react";
-import { getSessionUser } from "@/lib/auth/session";
+import { getSessionUser, sessionProfile } from "@/lib/auth/session";
 import { getLandingPath } from "@/lib/workspaces/service";
 
 const OFFERINGS = [
@@ -115,7 +115,7 @@ function Landing() {
 async function HomeGate() {
   await connection();
   const user = await getSessionUser();
-  if (user) redirect(await getLandingPath(user.sub));
+  if (user) redirect(await getLandingPath(user.sub, sessionProfile(user).email));
   return <Landing />;
 }
 

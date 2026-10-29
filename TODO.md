@@ -29,18 +29,21 @@ Business accounts for Spurs. Users sign in with their Spurs identity, then creat
 - [x] Add the read-only settings page for workspace name and Pay identity status
 
 ## Pay identity (created by admin)
-- [ ] Internal API in this app for admin to set/clear `pay_identity_id` (service-to-service auth, not user sessions)
+- [x] Internal API in this app for admin to set/clear `pay_identity_id` (service-to-service auth, not user sessions)
 - [ ] Admin screen in `admin/` to list businesses and create their Pay identity (calls Pay, then the internal API above)
 - [ ] Decide what a business can't do until its Pay identity exists (e.g. wallet, funding, bulk purchases)
 - [ ] Notify the business when its Pay account becomes active
-- [ ] Decide whether an admin can revoke or replace a Pay identity
+- [x] Decide whether an admin can revoke or replace a Pay identity (yes: `DELETE` clears it; `PUT` with `replace: true` replaces it)
 
-## Next: team and roles
-- [ ] Invite members by email or Spurs id
-- [ ] Accept/decline invites
-- [ ] Role management (owner, admin, member) and permission checks
-- [ ] Remove member / leave workspace
-- [ ] Transfer ownership
+## Team and roles
+- [x] Invite members by verified email or Spurs id
+- [x] Accept/decline invites
+- [x] Role management (owner, admin, member) and permission checks
+- [x] Remove member / leave workspace
+- [x] Transfer ownership
+- [ ] Send an email when an invite is created (invites are in-app only today)
+- [ ] Look up member names/emails from Accounts so older members don't show as "Spurs member"
+- [ ] Audit log entries for invite, role change, removal and transfer
 
 ## Workspace settings
 - [ ] Edit business name and profile (logo, phone, address) — slug stays fixed (settings page is read-only for now)
@@ -74,7 +77,7 @@ Business accounts for Spurs. Users sign in with their Spurs identity, then creat
 - [ ] Deployment config and production env checklist
 
 ## Open questions
-- Does the 5-workspace limit count only owned workspaces (current behavior) or also ones the user is a member of?
+- [x] The 5-workspace limit counts only owned workspaces; invitations do not use a slot.
 - Should admins be able to raise the limit for a specific user?
 - Which admin/ screens are needed to review or support business accounts?
 - How should deleting a workspace affect its Pay identity and school site?

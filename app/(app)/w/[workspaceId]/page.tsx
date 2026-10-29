@@ -126,8 +126,9 @@ export default async function WorkspaceOverviewPage({
         },
     {
       title: "Invite your team",
-      description: "Team invites and roles are coming soon.",
-      status: "soon",
+      description: "Add admins and members to help run this workspace.",
+      status: "pending",
+      href: `${base}/team`,
     },
   ];
 

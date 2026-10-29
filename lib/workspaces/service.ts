@@ -7,6 +7,7 @@ import type { PoolClient, QueryResultRow } from "pg";
 import { MAX_OWNED_WORKSPACES } from "@/lib/constants";
 import { getPool } from "@/lib/db";
 import type { Workspace, WorkspaceMember, WorkspaceRole } from "@/lib/db/schema";
+import { countInvitesForUser } from "@/lib/workspaces/team";
 import type { CreateWorkspaceInput } from "@/lib/workspaces/validators";
 import { schoolSlugBase, schoolSlugCandidate } from "@/lib/workspaces/slug";
 
@@ -61,7 +62,10 @@ export async function listUserWorkspaces(
   }));
 }
 
-export async function getLandingPath(userId: string): Promise<string> {
+export async function getLandingPath(
+  userId: string,
+  email: string | null = null,
+): Promise<string> {
   const { rows } = await getPool().query<{ id: string }>(
     `SELECT w.id
        FROM workspace_members wm
@@ -72,7 +76,10 @@ export async function getLandingPath(userId: string): Promise<string> {
     [userId],
   );
 
-  if (rows.length === 0) return "/workspaces/new";
+  if (rows.length === 0) {
+    const pending = await countInvitesForUser(userId, email);
+    return pending > 0 ? "/workspaces/invites" : "/workspaces/new";
+  }
   if (rows.length === 1) return `/w/${rows[0].id}`;
   return "/workspaces";
 }
@@ -111,10 +118,12 @@ export async function listWorkspaceMembers(
 ): Promise<WorkspaceMember[]> {
   const { rows } = await getPool().query<{
     userId: string;
+    name: string | null;
+    email: string | null;
     role: WorkspaceRole;
     joinedAt: Date;
   }>(
-    `SELECT user_id AS "userId", role, created_at AS "joinedAt"
+    `SELECT user_id AS "userId", name, email, role, created_at AS "joinedAt"
        FROM workspace_members
       WHERE workspace_id = $1
       ORDER BY CASE role WHEN 'owner' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END,
@@ -125,6 +134,8 @@ export async function listWorkspaceMembers(
 
   return rows.map((row) => ({
     userId: row.userId,
+    name: row.name,
+    email: row.email,
     role: row.role,
     joinedAt: row.joinedAt.toISOString(),
   }));
@@ -171,6 +182,7 @@ async function findSchoolSlug(
 export async function createWorkspace(
   userId: string,
   input: CreateWorkspaceInput,
+  profile: { name: string | null; email: string | null } = { name: null, email: null },
 ): Promise<
   | { ok: true; workspace: Workspace }
   | { ok: false; error: "LIMIT_REACHED" | "SLUG_UNAVAILABLE" }
@@ -224,9 +236,9 @@ export async function createWorkspace(
     if (!row) throw new Error("Workspace insert did not return a row.");
 
     await client.query(
-      `INSERT INTO workspace_members (workspace_id, user_id, role)
-       VALUES ($1, $2, 'owner')`,
-      [row.id, userId],
+      `INSERT INTO workspace_members (workspace_id, user_id, role, name, email)
+       VALUES ($1, $2, 'owner', $3, $4)`,
+      [row.id, userId, profile.name, profile.email],
     );
     await client.query("COMMIT");
 
@@ -241,4 +253,56 @@ export async function createWorkspace(
   } finally {
     client.release();
   }
+}
+
+export async function setPayIdentity(
+  workspaceId: string,
+  payIdentityId: string,
+  replace = false,
+): Promise<
+  | { ok: true; workspace: Workspace }
+  | { ok: false; error: "NOT_FOUND" | "PAY_IDENTITY_EXISTS" }
+> {
+  const { rows } = await getPool().query<WorkspaceRow>(
+    `UPDATE workspaces
+        SET pay_identity_id = $2
+      WHERE id = $1
+        AND (pay_identity_id IS NULL OR pay_identity_id = $2 OR $3::boolean)
+  RETURNING id,
+            name,
+            type,
+            slug,
+            pay_identity_id AS "payIdentityId",
+            created_at AS "createdAt"`,
+    [workspaceId, payIdentityId, replace],
+  );
+  if (rows[0]) return { ok: true, workspace: toWorkspace(rows[0]) };
+
+  const exists = await getPool().query("SELECT 1 FROM workspaces WHERE id = $1", [
+    workspaceId,
+  ]);
+  return {
+    ok: false,
+    error: exists.rows.length ? "PAY_IDENTITY_EXISTS" : "NOT_FOUND",
+  };
+}
+
+export async function clearPayIdentity(
+  workspaceId: string,
+): Promise<{ ok: true; workspace: Workspace } | { ok: false; error: "NOT_FOUND" }> {
+  const { rows } = await getPool().query<WorkspaceRow>(
+    `UPDATE workspaces
+        SET pay_identity_id = NULL
+      WHERE id = $1
+  RETURNING id,
+            name,
+            type,
+            slug,
+            pay_identity_id AS "payIdentityId",
+            created_at AS "createdAt"`,
+    [workspaceId],
+  );
+  return rows[0]
+    ? { ok: true, workspace: toWorkspace(rows[0]) }
+    : { ok: false, error: "NOT_FOUND" };
 }

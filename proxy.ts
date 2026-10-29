@@ -9,5 +9,6 @@ export const config = {
     "/workspaces/:path*",
     "/w/:path*",
     "/api/workspaces/:path*",
+    "/api/invites/:path*",
   ],
 };

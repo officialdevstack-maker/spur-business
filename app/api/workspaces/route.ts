@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth/session";
+import { getSessionUser, sessionProfile } from "@/lib/auth/session";
 import { MAX_OWNED_WORKSPACES } from "@/lib/constants";
 import {
   countOwnedWorkspaces,
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await createWorkspace(user.sub, parsed.data);
+    const result = await createWorkspace(user.sub, parsed.data, sessionProfile(user));
     if (!result.ok) {
       const status = result.error === "LIMIT_REACHED" ? 403 : 409;
       return NextResponse.json({ error: result.error }, { status });
