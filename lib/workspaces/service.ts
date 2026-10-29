@@ -6,7 +6,7 @@ import { z } from "zod";
 import type { PoolClient, QueryResultRow } from "pg";
 import { MAX_OWNED_WORKSPACES } from "@/lib/constants";
 import { getPool } from "@/lib/db";
-import type { Workspace, WorkspaceRole } from "@/lib/db/schema";
+import type { Workspace, WorkspaceMember, WorkspaceRole } from "@/lib/db/schema";
 import type { CreateWorkspaceInput } from "@/lib/workspaces/validators";
 import { schoolSlugBase, schoolSlugCandidate } from "@/lib/workspaces/slug";
 
@@ -104,6 +104,30 @@ export async function getWorkspaceForUser(
 
   const { role, ...workspace } = row;
   return { workspace: toWorkspace(workspace), role };
+}
+
+export async function listWorkspaceMembers(
+  workspaceId: string,
+): Promise<WorkspaceMember[]> {
+  const { rows } = await getPool().query<{
+    userId: string;
+    role: WorkspaceRole;
+    joinedAt: Date;
+  }>(
+    `SELECT user_id AS "userId", role, created_at AS "joinedAt"
+       FROM workspace_members
+      WHERE workspace_id = $1
+      ORDER BY CASE role WHEN 'owner' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END,
+               created_at,
+               user_id`,
+    [workspaceId],
+  );
+
+  return rows.map((row) => ({
+    userId: row.userId,
+    role: row.role,
+    joinedAt: row.joinedAt.toISOString(),
+  }));
 }
 
 const uuid = z.string().uuid();

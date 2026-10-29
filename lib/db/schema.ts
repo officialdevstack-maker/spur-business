@@ -10,3 +10,9 @@ export type Workspace = {
   payIdentityId: string | null;
   createdAt: string;
 };
+
+export type WorkspaceMember = {
+  userId: string;
+  role: WorkspaceRole;
+  joinedAt: string;
+};

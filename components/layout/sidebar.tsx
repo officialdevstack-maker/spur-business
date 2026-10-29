@@ -152,12 +152,8 @@ export function Sidebar(props: Props) {
         </div>
       )}
 
-      <div className="relative hidden w-[72px] shrink-0 md:block">
-        <div className="sticky top-0 h-dvh">
-          <div className="group/rail absolute inset-y-0 left-0 z-30 w-[72px] overflow-hidden border-r border-[#12343B]/10 bg-white transition-[width] duration-200 hover:w-64 hover:shadow-xl focus-within:w-64 focus-within:shadow-xl">
-            <Panel {...props} onNavigate={() => {}} expanded={false} />
-          </div>
-        </div>
+      <div className="group/rail sticky top-0 hidden h-dvh w-[72px] shrink-0 overflow-hidden border-r border-[#12343B]/10 bg-white transition-[width] duration-200 hover:w-64 focus-within:w-64 md:block">
+        <Panel {...props} onNavigate={() => {}} expanded={false} />
       </div>
     </>
   );

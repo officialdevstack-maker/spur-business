@@ -42,7 +42,7 @@ export function getNavSections(type: WorkspaceType): NavSection[] {
     {
       title: "Workspace",
       items: [
-        { label: "Team", icon: "users", path: "/team", soon: true },
+        { label: "Team", icon: "users", path: "/team" },
         { label: "Settings", icon: "settings", path: "/settings" },
       ],
     },

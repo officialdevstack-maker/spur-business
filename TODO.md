@@ -10,6 +10,7 @@ Business accounts for Spurs. Users sign in with their Spurs identity, then creat
 - [x] Creator is added as workspace owner
 - [x] Limit of 5 owned workspaces, serialized and enforced in the database transaction
 - [x] Basic member-only workspace overview and Pay identity status
+- [x] Read-only team roster showing member ids and roles
 - [x] Unique school workspace slugs
 - [x] Route signed-in users from the home page based on their workspaces
 
