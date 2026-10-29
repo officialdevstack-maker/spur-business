@@ -1,18 +1,14 @@
 import type { ReactNode } from "react";
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { Topbar } from "@/components/layout/topbar";
 import { requireUser } from "@/lib/auth/session";
 
 async function AuthenticatedShell({ children }: { children: ReactNode }) {
   await connection();
-  const user = await requireUser();
+  await requireUser();
 
   return (
-    <div className="min-h-dvh bg-[#EEF3F4] text-[#12343B]">
-      <Topbar user={user} />
-      {children}
-    </div>
+    <div className="min-h-dvh bg-[#EEF3F4] text-[#12343B]">{children}</div>
   );
 }
 

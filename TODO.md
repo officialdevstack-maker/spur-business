@@ -17,7 +17,7 @@ Business accounts for Spurs. Users sign in with their Spurs identity, then creat
 - [ ] Configure `SPURS_SESSION_SECRET` and `APP_URL` from `.env.example`
 - [ ] Configure `SCHOOLS_BASE_URL` for the separate schools app
 - [ ] Confirm Accounts issues the shared cookie for the local hostname and production Spurs app domain
-- [ ] Run `db/schema.sql` against the Neon/PostgreSQL database
+- [ ] Run `npm run db:migrate` against the Neon/PostgreSQL database
 - [ ] Set `DATABASE_URL` to the Business app's dedicated PostgreSQL/Neon database
 - [ ] End-to-end test: sign in, create VTU and school workspaces, reload, switch, sign out
 

@@ -9,7 +9,7 @@ Auth.js, or an OAuth callback route.
 1. Install dependencies with `npm install`.
 2. Copy `.env.example` to `.env.local`.
 3. Set `DATABASE_URL` to this app's dedicated PostgreSQL/Neon database and run
-   [`db/schema.sql`](./db/schema.sql) against it.
+   `npm run db:migrate` to apply pending SQL migrations from `db/migrations/`.
 4. Set `SPURS_SESSION_SECRET` to the shared session-signing secret configured by
    Spurs Accounts. Keep it server-side and never commit it.
 5. Set `APP_URL` to the exact public origin used to open this app, including its
