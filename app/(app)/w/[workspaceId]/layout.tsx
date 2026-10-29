@@ -18,16 +18,17 @@ export default async function WorkspaceLayout({
     listUserWorkspaces(user.sub),
   ]);
   const owned = rows.filter((row) => row.role === "owner").length;
+  const current = {
+    id: workspace.id,
+    name: workspace.name,
+    type: workspace.type,
+    payActive: Boolean(workspace.payIdentityId),
+  };
 
   return (
     <div className="flex flex-col md:flex-row">
       <Sidebar
-        current={{
-          id: workspace.id,
-          name: workspace.name,
-          type: workspace.type,
-          payActive: Boolean(workspace.payIdentityId),
-        }}
+        current={current}
         workspaces={rows.map(({ workspace: item }) => ({
           id: item.id,
           name: item.name,
@@ -36,7 +37,7 @@ export default async function WorkspaceLayout({
         canCreate={owned < MAX_OWNED_WORKSPACES}
       />
       <div className="min-w-0 flex-1">
-        <Topbar user={user} compact />
+        <Topbar user={user} workspace={current} />
         <div className="px-6 py-8 sm:px-10">
           <div className="mx-auto max-w-5xl">{children}</div>
         </div>

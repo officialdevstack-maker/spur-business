@@ -100,17 +100,6 @@ function Panel({
         ))}
       </nav>
 
-      <div
-        className="flex items-center gap-3 rounded-xl bg-[#EEF3F4] px-4 py-3"
-        title={`Pay account: ${current.payActive ? "Active" : "Pending"}`}
-      >
-        <span
-          className={`size-2.5 shrink-0 rounded-full ${current.payActive ? "bg-green-500" : "bg-[#F2B632]"}`}
-        />
-        <span className={`whitespace-nowrap text-sm font-medium ${labelCls}`}>
-          Pay account: {current.payActive ? "Active" : "Pending"}
-        </span>
-      </div>
     </div>
   );
 }
