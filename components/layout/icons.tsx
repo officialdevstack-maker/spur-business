@@ -13,7 +13,9 @@ export type IconName =
   | "menu"
   | "x"
   | "check"
-  | "grid";
+  | "grid"
+  | "wifi"
+  | "wifi-off";
 
 const PATHS: Record<IconName, string> = {
   home: "M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",
@@ -32,6 +34,9 @@ const PATHS: Record<IconName, string> = {
   x: "M6 6l12 12M18 6 6 18",
   check: "m5 12 5 5 9-10",
   grid: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",
+  wifi: "M12 20h.01M2 8.82a15 15 0 0 1 20 0M5 12.859a10 10 0 0 1 14 0M8.5 16.429a5 5 0 0 1 7 0",
+  "wifi-off":
+    "M12 20h.01M8.5 16.429a5 5 0 0 1 7 0M5 12.859a10 10 0 0 1 5.17-2.69M19 12.859a10 10 0 0 0-2.007-1.523M2 8.82a15 15 0 0 1 4.177-2.643M22 8.82a15 15 0 0 0-11.288-3.764M2 2l20 20",
 };
 
 export function Icon({

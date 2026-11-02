@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { requireUser } from "@/lib/auth/session";
 import { requireWorkspace } from "@/lib/workspaces/service";
 
@@ -10,7 +11,26 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-export default async function SettingsPage({
+export default function SettingsPage({
+  params,
+}: {
+  params: Promise<{ workspaceId: string }>;
+}) {
+  return (
+    <Suspense
+      fallback={
+        <section className="space-y-6">
+          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+          <p className="text-[#4C6267]">Loading…</p>
+        </section>
+      }
+    >
+      <SettingsDetails params={params} />
+    </Suspense>
+  );
+}
+
+async function SettingsDetails({
   params,
 }: {
   params: Promise<{ workspaceId: string }>;
