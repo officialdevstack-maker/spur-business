@@ -11,11 +11,11 @@ export default async function WorkspaceWalletPage({
 }) {
   const { workspaceId } = await params;
   const user = await requireUser();
-  const { workspace, role } = await requireWorkspace(workspaceId, user.sub);
+  const { workspace } = await requireWorkspace(workspaceId, user.sub);
   if (workspace.type !== "vtu") notFound();
 
   const wallet = await getWorkspaceWallet(workspaceId);
-  const canFund = role === "owner" && workspace.operatorType === "third_party";
+  const canFund = workspace.operatorType === "third_party";
 
   return (
     <section className="space-y-6">
@@ -38,7 +38,7 @@ export default async function WorkspaceWalletPage({
         <div className="rounded-2xl border border-[#12343B]/10 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold">Add funds</h2>
           <p className="mt-1 mb-5 text-sm text-[#4C6267]">
-            Only the workspace owner can move money from their personal wallet into this business wallet.
+            Any workspace member can move funds from their personal Spurs wallet into this business wallet.
           </p>
           <FundWorkspaceForm workspaceId={workspaceId} />
         </div>
@@ -46,7 +46,7 @@ export default async function WorkspaceWalletPage({
         <p className="rounded-2xl border border-dashed border-[#12343B]/20 p-5 text-sm text-[#4C6267]">
           {workspace.operatorType === "spurs"
             ? "This workspace is operated by Spurs. Its wallet is managed by Spurs administrators."
-            : "Only the workspace owner can fund this business wallet."}
+            : "This business wallet is only available to third-party workspaces."}
         </p>
       )}
     </section>

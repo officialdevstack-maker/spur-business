@@ -23,12 +23,9 @@ export async function POST(
 
   try {
     const { workspaceId } = await params;
-    const { workspace, role } = await requireWorkspace(workspaceId, user.sub);
+    const { workspace } = await requireWorkspace(workspaceId, user.sub);
     if (workspace.type !== "vtu") {
       return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
-    }
-    if (role !== "owner") {
-      return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
     }
     if (workspace.operatorType !== "third_party") {
       return NextResponse.json({ error: "WORKSPACE_NOT_THIRD_PARTY" }, { status: 409 });

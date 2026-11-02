@@ -14,12 +14,22 @@ Auth.js, or an OAuth callback route.
    database before using VTU workspace wallets.
 5. Set `SPURS_WALLET_URL` and `INTERNAL_API_SECRET` so Business can call the
    internal Spurs Wallet API. Keep the shared secret server-side.
-6. Set `SPURS_SESSION_SECRET` to the shared session-signing secret configured by
+6. Set `VTU_INTERNAL_API_SECRET` in Business and the matching
+   `BUSINESS_INTERNAL_API_SECRET` in VTU. Workspace VTU base URLs are stored
+   per workspace in the Business database, not in an environment variable.
+   Register a trusted HTTPS VTU host through the internal
+   `POST /api/internal/vtu-hosts` endpoint, then assign its URL to a workspace
+   with `PUT /api/internal/workspaces/:workspaceId/vtu-integration`. Both accept
+   a JSON `baseUrl`. These platform-only endpoints require a bearer token
+   configured by `INTERNAL_API_KEY`.
+   Only URLs whose exact host is allowlisted can receive the VTU internal
+   secret.
+7. Set `SPURS_SESSION_SECRET` to the shared session-signing secret configured by
    Spurs Accounts. Keep it server-side and never commit it.
-7. Set `APP_URL` to the exact public origin used to open this app, including its
+8. Set `APP_URL` to the exact public origin used to open this app, including its
    port in development. The SDK uses it to send signed-out users back to the
    correct host after sign-in.
-8. Run `npm run dev`.
+9. Run `npm run dev`.
 
 The app runs at `http://localhost:3000` by default. When testing shared sessions
 locally, use the same hostname (`localhost` or `127.0.0.1`) for Accounts and
@@ -48,8 +58,9 @@ Accounts URL for local development or staging.
   internal services can change the operator type. Business customers are linked
   by shared Spurs user ID, one relationship per workspace; this does not grant
   the business control over a customer's personal wallet. Business wallet
-  funding transfers from the workspace owner's personal Spurs Wallet into a
-  separate workspace account.
+  funding transfers from a workspace member's personal Spurs Wallet into a
+  separate workspace account. Workspace members can manage workspace VTU
+  resources; platform-wide settings remain Spurs-managed.
 
 Do not pass the session secret to client components or mint session tokens in
 this app. For the Accounts integration details, see the

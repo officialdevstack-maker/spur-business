@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
-import { listWorkspaceCustomers } from "@/lib/customers/service";
 import { requireWorkspace } from "@/lib/workspaces/service";
+import { listVtuWorkspaceCustomers } from "@/lib/vtu/client";
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   dateStyle: "medium",
@@ -18,7 +18,7 @@ export default async function WorkspaceCustomersPage({
   const { workspace } = await requireWorkspace(workspaceId, user.sub);
   if (workspace.type !== "vtu") notFound();
 
-  const customers = await listWorkspaceCustomers(workspaceId);
+  const customers = await listVtuWorkspaceCustomers(workspaceId);
 
   return (
     <section className="space-y-6">
@@ -43,7 +43,7 @@ export default async function WorkspaceCustomersPage({
                     {customer.name ?? "Spurs customer"}
                   </p>
                   <p className="mt-0.5 truncate text-xs text-[#6A7E82]">
-                    {customer.email ?? `Spurs ID ${customer.userId}`}
+                    {customer.email ?? customer.username ?? `Spurs ID ${customer.userId}`}
                   </p>
                 </div>
                 <span className="rounded-full bg-[#12343B]/5 px-3 py-1 text-xs capitalize">
