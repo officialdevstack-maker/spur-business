@@ -45,6 +45,12 @@ async function SettingsDetails({
       <dl className="rounded-2xl border border-[#12343B]/10 bg-white px-5 shadow-sm">
         <Row label="Name" value={workspace.name} />
         <Row label="Type" value={workspace.type === "vtu" ? "VTU business" : "School"} />
+        {workspace.type === "vtu" && (
+          <Row
+            label="VTU operator"
+            value={workspace.operatorType === "spurs" ? "Spurs" : "Third-party business"}
+          />
+        )}
         <Row label="Address (permanent)" value={workspace.slug ?? "Not set"} />
         <Row label="Pay account" value={workspace.payIdentityId ? "Active" : "Pending"} />
         <Row label="Your role" value={role} />

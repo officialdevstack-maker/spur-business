@@ -10,12 +10,16 @@ Auth.js, or an OAuth callback route.
 2. Copy `.env.example` to `.env.local`.
 3. Set `DATABASE_URL` to this app's dedicated PostgreSQL/Neon database and run
    `npm run db:migrate` to apply pending SQL migrations from `db/migrations/`.
-4. Set `SPURS_SESSION_SECRET` to the shared session-signing secret configured by
+4. Apply `../wallet/drizzle/0001_workspace_wallet_accounts.sql` to the Spurs Wallet
+   database before using VTU workspace wallets.
+5. Set `SPURS_WALLET_URL` and `INTERNAL_API_SECRET` so Business can call the
+   internal Spurs Wallet API. Keep the shared secret server-side.
+6. Set `SPURS_SESSION_SECRET` to the shared session-signing secret configured by
    Spurs Accounts. Keep it server-side and never commit it.
-5. Set `APP_URL` to the exact public origin used to open this app, including its
+7. Set `APP_URL` to the exact public origin used to open this app, including its
    port in development. The SDK uses it to send signed-out users back to the
    correct host after sign-in.
-6. Run `npm run dev`.
+8. Run `npm run dev`.
 
 The app runs at `http://localhost:3000` by default. When testing shared sessions
 locally, use the same hostname (`localhost` or `127.0.0.1`) for Accounts and
@@ -40,6 +44,12 @@ Accounts URL for local development or staging.
 - Workspace API and page actions read and authorize the shared session on the
   server. Workspace data is stored in this app's own database; the owner limit
   is serialized and enforced in a database transaction.
+- VTU workspaces are third-party operated by default. Only trusted Spurs
+  internal services can change the operator type. Business customers are linked
+  by shared Spurs user ID, one relationship per workspace; this does not grant
+  the business control over a customer's personal wallet. Business wallet
+  funding transfers from the workspace owner's personal Spurs Wallet into a
+  separate workspace account.
 
 Do not pass the session secret to client components or mint session tokens in
 this app. For the Accounts integration details, see the

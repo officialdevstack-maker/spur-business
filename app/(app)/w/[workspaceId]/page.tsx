@@ -116,8 +116,9 @@ export default async function WorkspaceOverviewPage({
     isVtu
       ? {
           title: "Fund your business wallet",
-          description: "Wallet funding is coming soon.",
-          status: "soon",
+          description: "Move funds from your personal Spurs wallet so the business can pay its VTU provider.",
+          status: "pending",
+          href: `${base}/wallet`,
         }
       : {
           title: "Launch your school site",
@@ -203,8 +204,8 @@ export default async function WorkspaceOverviewPage({
         {isVtu ? (
           <StatCard
             label="Wallet"
-            value="Coming soon"
-            hint="Your business wallet will appear here."
+            value="Separate business balance"
+            hint="Your personal Spurs wallet remains yours; fund the business wallet when needed."
           />
         ) : (
           <div className="rounded-2xl border border-[#12343B]/10 bg-white p-5 shadow-sm">

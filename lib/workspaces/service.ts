@@ -6,7 +6,7 @@ import { z } from "zod";
 import type { PoolClient, QueryResultRow } from "pg";
 import { MAX_OWNED_WORKSPACES } from "@/lib/constants";
 import { getPool } from "@/lib/db";
-import type { Workspace, WorkspaceMember, WorkspaceRole } from "@/lib/db/schema";
+import type { VtuOperator, Workspace, WorkspaceMember, WorkspaceRole } from "@/lib/db/schema";
 import { countInvitesForUser } from "@/lib/workspaces/team";
 import type { CreateWorkspaceInput } from "@/lib/workspaces/validators";
 import { schoolSlugBase, schoolSlugCandidate } from "@/lib/workspaces/slug";
@@ -15,6 +15,7 @@ type WorkspaceRow = QueryResultRow & {
   id: string;
   name: string;
   type: Workspace["type"];
+  operatorType: VtuOperator | null;
   slug: string | null;
   payIdentityId: string | null;
   createdAt: Date;
@@ -29,6 +30,7 @@ function toWorkspace(row: WorkspaceRow): Workspace {
     id: row.id,
     name: row.name,
     type: row.type,
+    operatorType: row.operatorType,
     slug: row.slug,
     payIdentityId: row.payIdentityId,
     createdAt: row.createdAt.toISOString(),
@@ -39,6 +41,7 @@ const WORKSPACE_COLUMNS = `
   w.id,
   w.name,
   w.type,
+  w.operator_type AS "operatorType",
   w.slug,
   w.pay_identity_id AS "payIdentityId",
   w.created_at AS "createdAt"
@@ -222,15 +225,16 @@ export async function createWorkspace(
     }
 
     const inserted = await client.query<WorkspaceRow>(
-      `INSERT INTO workspaces (name, type, slug)
-       VALUES ($1, $2, $3)
+      `INSERT INTO workspaces (name, type, slug, operator_type)
+       VALUES ($1, $2, $3, $4)
        RETURNING id,
                  name,
                  type,
+                 operator_type AS "operatorType",
                  slug,
                  pay_identity_id AS "payIdentityId",
                  created_at AS "createdAt"`,
-      [input.name, input.type, slug],
+      [input.name, input.type, slug, input.type === "vtu" ? "third_party" : null],
     );
     const row = inserted.rows[0];
     if (!row) throw new Error("Workspace insert did not return a row.");
@@ -271,6 +275,7 @@ export async function setPayIdentity(
   RETURNING id,
             name,
             type,
+            operator_type AS "operatorType",
             slug,
             pay_identity_id AS "payIdentityId",
             created_at AS "createdAt"`,
@@ -297,6 +302,7 @@ export async function clearPayIdentity(
   RETURNING id,
             name,
             type,
+            operator_type AS "operatorType",
             slug,
             pay_identity_id AS "payIdentityId",
             created_at AS "createdAt"`,
@@ -305,4 +311,24 @@ export async function clearPayIdentity(
   return rows[0]
     ? { ok: true, workspace: toWorkspace(rows[0]) }
     : { ok: false, error: "NOT_FOUND" };
+}
+
+export async function setVtuOperator(
+  workspaceId: string,
+  operatorType: VtuOperator,
+): Promise<Workspace | null> {
+  const { rows } = await getPool().query<WorkspaceRow>(
+    `UPDATE workspaces
+        SET operator_type = $2
+      WHERE id = $1 AND type = 'vtu'
+  RETURNING id,
+            name,
+            type,
+            operator_type AS "operatorType",
+            slug,
+            pay_identity_id AS "payIdentityId",
+            created_at AS "createdAt"`,
+    [workspaceId, operatorType],
+  );
+  return rows[0] ? toWorkspace(rows[0]) : null;
 }

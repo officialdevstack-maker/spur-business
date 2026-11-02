@@ -1,15 +1,26 @@
 import type { WorkspaceType } from "@/lib/constants";
 
 export type WorkspaceRole = "owner" | "admin" | "member";
+export type VtuOperator = "spurs" | "third_party";
 export type InviteRole = Exclude<WorkspaceRole, "owner">;
 
 export type Workspace = {
   id: string;
   name: string;
   type: WorkspaceType;
+  operatorType: VtuOperator | null;
   slug: string | null;
   payIdentityId: string | null;
   createdAt: string;
+};
+
+export type WorkspaceCustomer = {
+  userId: string;
+  name: string | null;
+  email: string | null;
+  status: "active" | "suspended";
+  createdAt: string;
+  lastSeenAt: string;
 };
 
 export type WorkspaceMember = {

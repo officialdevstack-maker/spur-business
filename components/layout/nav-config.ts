@@ -27,10 +27,10 @@ export function getNavSections(type: WorkspaceType): NavSection[] {
       title: "Manage",
       items: isVtu
         ? [
-            { label: "Wallet", icon: "wallet", path: "/wallet", soon: true },
+            { label: "Wallet", icon: "wallet", path: "/wallet" },
             { label: "Bulk purchase", icon: "layers", path: "/bulk", soon: true },
             { label: "Transactions", icon: "receipt", path: "/transactions", soon: true },
-            { label: "Customers", icon: "users", path: "/customers", soon: true },
+            { label: "Customers", icon: "users", path: "/customers" },
           ]
         : [
             { label: "Students", icon: "users", path: "/students", soon: true },
