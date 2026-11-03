@@ -1,10 +1,30 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { FundWorkspaceForm } from "@/components/wallet/fund-workspace-form";
 import { requireUser } from "@/lib/auth/session";
 import { requireWorkspace } from "@/lib/workspaces/service";
 import { getWorkspaceWallet } from "@/lib/wallet/workspace";
 
-export default async function WorkspaceWalletPage({
+export default function WorkspaceWalletPage({
+  params,
+}: {
+  params: Promise<{ workspaceId: string }>;
+}) {
+  return (
+    <Suspense
+      fallback={
+        <section className="space-y-6">
+          <h1 className="text-3xl font-bold tracking-tight">Business wallet</h1>
+          <p className="text-sm text-[#6A7E82]">Loading wallet…</p>
+        </section>
+      }
+    >
+      <WorkspaceWalletDetails params={params} />
+    </Suspense>
+  );
+}
+
+async function WorkspaceWalletDetails({
   params,
 }: {
   params: Promise<{ workspaceId: string }>;
