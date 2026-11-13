@@ -5,6 +5,7 @@ import {
   getVtuWorkspaceAdmin,
   listVtuWorkspaceTransactions,
 } from "@/lib/vtu/client";
+import { withVtuConnection } from "@/lib/vtu/guard";
 import { requireWorkspace } from "@/lib/workspaces/service";
 
 type JsonRecord = Record<string, unknown>;
@@ -92,7 +93,9 @@ export default async function VtuAdminResourcePage({
   if (workspace.type !== "vtu") notFound();
 
   if (section === "transactions") {
-    const transactions = await listVtuWorkspaceTransactions(workspaceId);
+    const transactions = await withVtuConnection(workspaceId, () =>
+      listVtuWorkspaceTransactions(workspaceId),
+    );
     return (
       <section className="space-y-5">
         <ResourceHeader workspaceId={workspaceId} title="Transactions" />
@@ -132,7 +135,9 @@ export default async function VtuAdminResourcePage({
   const supported = ["products", "providers", "packages"] as const;
   const resourceName = supported.find((item) => item === section);
   if (!resourceName) notFound();
-  const resource = await getVtuWorkspaceAdmin(workspaceId, resourceName);
+  const resource = await withVtuConnection(workspaceId, () =>
+    getVtuWorkspaceAdmin(workspaceId, resourceName),
+  );
 
   if (resourceName === "products") {
     const airtimeData = resource.airtimeData;

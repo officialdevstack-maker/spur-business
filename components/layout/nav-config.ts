@@ -34,6 +34,7 @@ export function getNavSections(type: WorkspaceType): NavSection[] {
             { label: "Packages", icon: "book", path: "/vtu/packages" },
             { label: "Transactions", icon: "receipt", path: "/vtu/transactions" },
             { label: "Customers", icon: "users", path: "/customers" },
+            { label: "Connect site", icon: "wifi", path: "/vtu/connect" },
           ]
         : [
             { label: "Students", icon: "users", path: "/students", soon: true },

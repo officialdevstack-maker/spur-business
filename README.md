@@ -14,22 +14,24 @@ Auth.js, or an OAuth callback route.
    database before using VTU workspace wallets.
 5. Set `SPURS_WALLET_URL` and `INTERNAL_API_SECRET` so Business can call the
    internal Spurs Wallet API. Keep the shared secret server-side.
-6. Set `VTU_INTERNAL_API_SECRET` in Business and the matching
-   `BUSINESS_INTERNAL_API_SECRET` in VTU. Workspace VTU base URLs are stored
-   per workspace in the Business database, not in an environment variable.
-   Register a trusted HTTPS VTU host through the internal
-   `POST /api/internal/vtu-hosts` endpoint, then assign its URL to a workspace
-   with `PUT /api/internal/workspaces/:workspaceId/vtu-integration`. Both accept
-   a JSON `baseUrl`. These platform-only endpoints require a bearer token
-   configured by `INTERNAL_API_KEY`.
-   Only URLs whose exact host is allowlisted can receive the VTU internal
-   secret.
-7. Set `SPURS_SESSION_SECRET` to the shared session-signing secret configured by
+6. Set `PROVIDER_SECRET_KEY` to a dedicated random 32-byte base64 key. It
+   encrypts per-workspace VTU secrets; keep it private and back it up securely.
+   Keep this key stable: changing it makes existing VTU site secrets unreadable.
+7. Workspace owners and admins connect third-party VTU sites from **VTU business
+   → Connect site**. The VTU owner adds the displayed workspace ID and proof
+   token as `SPURS_BUSINESS_WORKSPACE_ID` and `SPURS_BUSINESS_VERIFY_TOKEN` in
+   the VTU site's server-side environment and redeploys. Business verifies the
+   public `/.well-known/spurs-business.json` endpoint, then shows a per-workspace
+   `BUSINESS_INTERNAL_API_SECRET` once. The VTU owner sets that secret in the
+   VTU site's server-side environment and redeploys. Do not put either token or
+   secret in browser code or source control. Legacy integrations without an
+   encrypted per-workspace secret continue to use `VTU_INTERNAL_API_SECRET`.
+8. Set `SPURS_SESSION_SECRET` to the shared session-signing secret configured by
    Spurs Accounts. Keep it server-side and never commit it.
-8. Set `APP_URL` to the exact public origin used to open this app, including its
+9. Set `APP_URL` to the exact public origin used to open this app, including its
    port in development. The SDK uses it to send signed-out users back to the
    correct host after sign-in.
-9. Run `npm run dev`.
+10. Run `npm run dev`.
 
 The app runs at `http://localhost:3000` by default. When testing shared sessions
 locally, use the same hostname (`localhost` or `127.0.0.1`) for Accounts and

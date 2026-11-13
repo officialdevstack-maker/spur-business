@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/session";
 import { getVtuWorkspaceAdmin } from "@/lib/vtu/client";
+import { withVtuConnection } from "@/lib/vtu/guard";
 import { requireWorkspace } from "@/lib/workspaces/service";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -40,7 +41,9 @@ export default async function VtuPage({
   const user = await requireUser();
   const { workspace } = await requireWorkspace(workspaceId, user.sub);
   if (workspace.type !== "vtu") notFound();
-  const overview = await getVtuWorkspaceAdmin(workspaceId, "overview");
+  const overview = await withVtuConnection(workspaceId, () =>
+    getVtuWorkspaceAdmin(workspaceId, "overview"),
+  );
   const transactionStats = isRecord(overview.transactions) ? overview.transactions : null;
   const stats: { label: string; value: unknown }[] = [
     { label: "Customers", value: overview.customers },

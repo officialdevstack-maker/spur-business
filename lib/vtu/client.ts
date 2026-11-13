@@ -1,6 +1,14 @@
 import "server-only";
+import { decryptSecret } from "@/lib/crypto";
 import { getPool } from "@/lib/db";
 import { parseVtuBaseUrl } from "@/lib/vtu/config";
+
+export class VtuNotConnectedError extends Error {
+  constructor(readonly workspaceId: string) {
+    super(`No trusted VTU integration is configured for workspace ${workspaceId}.`);
+    this.name = "VtuNotConnectedError";
+  }
+}
 
 export class VtuInternalError extends Error {
   constructor(
@@ -16,9 +24,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-async function getWorkspaceVtuBaseUrl(workspaceId: string): Promise<string> {
-  const result = await getPool().query<{ host: string; base_url: string }>(
-    `SELECT integration.host, integration.base_url
+async function getWorkspaceVtuTarget(workspaceId: string): Promise<{ baseUrl: string; secret: string }> {
+  const result = await getPool().query<{ host: string; base_url: string; secret_enc: string | null }>(
+    `SELECT integration.host, integration.base_url, integration.secret_enc
        FROM workspace_vtu_integrations integration
        JOIN vtu_host_allowlist allowed ON allowed.host = integration.host
        JOIN workspaces workspace ON workspace.id = integration.workspace_id
@@ -26,20 +34,21 @@ async function getWorkspaceVtuBaseUrl(workspaceId: string): Promise<string> {
     [workspaceId],
   );
   const integration = result.rows[0];
-  if (!integration) {
-    throw new Error(`No trusted VTU integration is configured for workspace ${workspaceId}.`);
-  }
+  if (!integration) throw new VtuNotConnectedError(workspaceId);
   const parsed = parseVtuBaseUrl(integration.base_url);
   if (parsed.host !== integration.host) {
     throw new Error(`The VTU integration host for workspace ${workspaceId} is invalid.`);
   }
-  return parsed.baseUrl;
+
+  const secret = integration.secret_enc
+    ? decryptSecret(integration.secret_enc)
+    : process.env.VTU_INTERNAL_API_SECRET;
+  if (!secret) throw new Error("VTU_INTERNAL_API_SECRET must be configured.");
+  return { baseUrl: parsed.baseUrl, secret };
 }
 
 async function request(workspaceId: string, path: string, init?: RequestInit): Promise<unknown> {
-  const baseUrl = await getWorkspaceVtuBaseUrl(workspaceId);
-  const secret = process.env.VTU_INTERNAL_API_SECRET;
-  if (!secret) throw new Error("VTU_INTERNAL_API_SECRET must be configured.");
+  const { baseUrl, secret } = await getWorkspaceVtuTarget(workspaceId);
 
   const response = await fetch(new URL(path, baseUrl), {
     ...init,

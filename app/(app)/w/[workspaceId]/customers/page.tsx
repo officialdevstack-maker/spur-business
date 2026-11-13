@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { requireWorkspace } from "@/lib/workspaces/service";
 import { listVtuWorkspaceCustomers } from "@/lib/vtu/client";
+import { withVtuConnection } from "@/lib/vtu/guard";
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   dateStyle: "medium",
@@ -18,7 +19,9 @@ export default async function WorkspaceCustomersPage({
   const { workspace } = await requireWorkspace(workspaceId, user.sub);
   if (workspace.type !== "vtu") notFound();
 
-  const customers = await listVtuWorkspaceCustomers(workspaceId);
+  const customers = await withVtuConnection(workspaceId, () =>
+    listVtuWorkspaceCustomers(workspaceId),
+  );
 
   return (
     <section className="space-y-6">
